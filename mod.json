@@ -2,13 +2,16 @@
 {
   "geode": "v5.11.1",
   "gd": {
-    "android": "2.2081"
+    "win": "2.2081",
+    "android": "2.2081",
+    "mac": "2.2081",
+    "ios": "2.2081"
   },
   "id": "kuboiks.gd-ai-learner",
   "name": "GD AI Learner",
   "version": "v1.0.0",
   "developer": "Kuboiks",
-  "description": "An experimental AI that aims to learn Geometry Dash through trial and error.",
+  "description": "An experimental Geometry Dash AI that aims to learn through trial and error and remember past attempts.",
   "dependencies": {
     "geode.node-ids": ">=v1.23.3"
   }
