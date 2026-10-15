@@ -95,6 +95,13 @@ class $modify(MyMenuLayer, MenuLayer) {
 	 * return type `void` and taking a `CCObject*`.
 	*/
 	void onMyButton(CCObject*) {
-		FLAlertLayer::create("Geode", "Hello from my custom mod!", "OK")->show();
-	}
+    FLAlertLayer::create(
+        "GD AI Learner",
+        "AI Learner is installed!\n\n"
+        "Status: Learning system not started yet.\n"
+        "Future goal: Learn Geometry Dash through "
+        "trial and error and remember past attempts.",
+        "OK"
+    )->show();
+}
 };
