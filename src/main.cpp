@@ -7,43 +7,79 @@ using namespace geode::prelude;
 
 class AILearnerPopup : public geode::Popup {
 protected:
-    CCLabelBMFont* m_statusLabel = nullptr;
+    CCLabelBMFont* m_status = nullptr;
+    CCLabelBMFont* m_info = nullptr;
+    CCLabelBMFont* m_modules = nullptr;
 
     bool init() {
-        if (!Popup::init(260.f, 170.f)) {
+        if (!Popup::init(300.f, 220.f)) {
             return false;
         }
 
-        this->setTitle("GD AI Learner");
+        this->setTitle("GD AI LEARNER");
 
-        auto status = CCLabelBMFont::create(
-            "Status: Not started",
+        // Glowny status
+        m_status = CCLabelBMFont::create(
+            "AI STATUS: NOT STARTED",
             "bigFont.fnt"
         );
 
-        if (!status) {
+        if (!m_status) {
             return false;
         }
 
-        status->setScale(0.45f);
+        m_status->setScale(0.45f);
         m_mainLayer->addChildAtPosition(
-            status,
+            m_status,
             Anchor::Center,
-            ccp(0.f, 15.f)
+            ccp(0.f, 48.f)
         );
 
-        m_statusLabel = status;
+        // Informacja o sesji
+        m_info = CCLabelBMFont::create(
+            "System ready. Waiting for start.",
+            "bigFont.fnt"
+        );
 
-        auto startSprite = ButtonSprite::create("START AI");
+        if (!m_info) {
+            return false;
+        }
 
-        auto startButton = CCMenuItemSpriteExtra::create(
-            startSprite,
+        m_info->setScale(0.30f);
+        m_mainLayer->addChildAtPosition(
+            m_info,
+            Anchor::Center,
+            ccp(0.f, 18.f)
+        );
+
+        // Status przyszlych modulow
+        m_modules = CCLabelBMFont::create(
+            "Scanner: OFF  |  Memory: OFF",
+            "bigFont.fnt"
+        );
+
+        if (!m_modules) {
+            return false;
+        }
+
+        m_modules->setScale(0.32f);
+        m_mainLayer->addChildAtPosition(
+            m_modules,
+            Anchor::Center,
+            ccp(0.f, -12.f)
+        );
+
+        // Przycisk uruchamiania
+        auto sprite = ButtonSprite::create("START AI");
+
+        auto button = CCMenuItemSpriteExtra::create(
+            sprite,
             this,
             menu_selector(AILearnerPopup::onStartAI)
         );
 
         m_buttonMenu->addChildAtPosition(
-            startButton,
+            button,
             Anchor::Bottom,
             ccp(0.f, 25.f)
         );
@@ -52,13 +88,23 @@ protected:
     }
 
     void onStartAI(CCObject*) {
-        if (m_statusLabel) {
-            m_statusLabel->setString(
-                "AI Started! (Prototype)"
+        if (m_status) {
+            m_status->setString("AI STATUS: INITIALIZED");
+        }
+
+        if (m_info) {
+            m_info->setString(
+                "Session initialized successfully."
             );
         }
 
-        log::info("GD AI Learner: Start AI pressed");
+        if (m_modules) {
+            m_modules->setString(
+                "Scanner: WAITING  |  Memory: WAITING"
+            );
+        }
+
+        log::info("GD AI Learner: Session initialized");
     }
 
 public:
