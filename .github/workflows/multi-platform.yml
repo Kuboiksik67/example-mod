@@ -41,6 +41,8 @@ jobs:
         with:
           combine: true
           target: ${{ matrix.config.target }}
+          # Pin bindings to a known pre-regression revision for GD 2.2081.
+          bindings-ref: 4ab9ff9fde679b5376d0c245c4abd08f840fa20b
 
   package:
     name: Package builds
