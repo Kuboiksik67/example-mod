@@ -9,7 +9,7 @@
   },
   "id": "kuboiks.gd-ai-learner",
   "name": "GD AI Learner",
-  "version": "v1.0.1",
+  "version": "v1.0.2",
   "developer": "Kuboiks",
   "description": "An experimental Geometry Dash AI that aims to learn through trial and error and remember past attempts.",
   "dependencies": {
