@@ -1,6 +1,8 @@
 #include <Geode/Geode.hpp>
 #include <Geode/ui/Popup.hpp>
 #include <Geode/modify/MenuLayer.hpp>
+#include <Geode/modify/PlayerObject.hpp>
+#include <Geode/binding/PlayLayer.hpp>
 #include <algorithm>
 #include <array>
 #include <string>
@@ -11,6 +13,13 @@ namespace {
 constexpr int PROFILE_COUNT = 4;
 constexpr char const* PROFILE_SCHEMA_KEY = "ai-profile-schema";
 constexpr int PROFILE_SCHEMA_VERSION = 1;
+
+// First playable prototype: automatic, timed cube jumps.
+// This is deliberately simple and does not yet recognize obstacles.
+bool g_aiEnabled = false;
+bool g_jumpHeld = false;
+float g_jumpReleaseTimer = 0.f;
+float g_jumpCooldown = 0.f;
 }
 
 class AILearnerPopup : public geode::Popup {
@@ -171,21 +180,28 @@ protected:
     }
 
     void onStartAI(CCObject*) {
-        m_status->setString("AI engine not connected");
-        FLAlertLayer::create(
-            "GD AI Learner",
-            "The profile system is ready, but autonomous cube control is not "
-            "implemented yet. This build will not press jump or play the level.\n\n"
-            "Next implementation step: verify the PlayLayer and PlayerObject "
-            "hooks against the project's Geode 5.11.1 bindings, then add "
-            "game-state observation and safe jump input.",
-            "OK"
-        )->show();
+        g_aiEnabled = !g_aiEnabled;
+        g_jumpHeld = false;
+        g_jumpReleaseTimer = 0.f;
+        g_jumpCooldown = 0.f;
 
-        log::info(
-            "GD AI Learner: profile {} selected; autonomous engine is not connected.",
-            active() + 1
-        );
+        if (g_aiEnabled) {
+            m_status->setString("Auto-jump prototype: ON");
+            FLAlertLayer::create(
+                "GD AI Learner",
+                "AUTO-JUMP PROTOTYPE ENABLED\n\n"
+                "Now enter a normal level. The mod will automatically tap jump "
+                "at intervals while the cube is on the ground.\n\n"
+                "Important: this first test does NOT detect obstacles yet, so it "
+                "will not reliably complete a level. Press START AI again to turn it off.",
+                "OK"
+            )->show();
+            log::info("GD AI Learner: auto-jump prototype enabled for profile {}.", active() + 1);
+        } else {
+            m_status->setString("Auto-jump prototype: OFF");
+            FLAlertLayer::create("GD AI Learner", "Auto-jump has been turned off.", "OK")->show();
+            log::info("GD AI Learner: auto-jump prototype disabled.");
+        }
     }
 
 public:
@@ -232,5 +248,45 @@ class $modify(MyMenuLayer, MenuLayer) {
         if (popup) {
             popup->show();
         }
+    }
+};
+
+
+// Basic proof that the mod can send jump input to the real player object.
+// Obstacle recognition and learning are the next steps after this is built/tested.
+class $modify(AILearnerPlayerObject, PlayerObject) {
+    void update(float dt) {
+        auto playLayer = PlayLayer::get();
+        bool isMainPlayer = playLayer && playLayer->m_player1 == this;
+
+        if (isMainPlayer && g_aiEnabled) {
+            g_jumpCooldown = std::max(0.f, g_jumpCooldown - dt);
+            g_jumpReleaseTimer = std::max(0.f, g_jumpReleaseTimer - dt);
+
+            if (m_isDead || m_controlsDisabled) {
+                if (g_jumpHeld) {
+                    this->releaseButton(PlayerButton::Jump);
+                    g_jumpHeld = false;
+                }
+            } else {
+                // Release the jump shortly after the press so it behaves like a tap.
+                if (g_jumpHeld && g_jumpReleaseTimer <= 0.f) {
+                    this->releaseButton(PlayerButton::Jump);
+                    g_jumpHeld = false;
+                }
+
+                // The current prototype is Cube-only: other vehicle flags must be false.
+                bool isCube = !m_isShip && !m_isBird && !m_isBall && !m_isDart &&
+                              !m_isRobot && !m_isSpider && !m_isSwing;
+                if (isCube && m_isOnGround && !g_jumpHeld && g_jumpCooldown <= 0.f) {
+                    this->pushButton(PlayerButton::Jump);
+                    g_jumpHeld = true;
+                    g_jumpReleaseTimer = 0.045f;
+                    g_jumpCooldown = 0.34f;
+                }
+            }
+        }
+
+        PlayerObject::update(dt);
     }
 };
