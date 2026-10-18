@@ -78,22 +78,30 @@ protected:
             return false;
         }
 
-        m_profile->setScale(0.60f);
-        m_hardest->setScale(0.42f);
-        m_stats->setScale(0.38f);
-        m_status->setScale(0.34f);
+        // Use a wider, flatter type treatment so the metadata stays readable
+        // without being covered by the profile buttons.
+        m_profile->setScaleX(0.54f);
+        m_profile->setScaleY(0.38f);
+        m_hardest->setScaleX(0.40f);
+        m_hardest->setScaleY(0.27f);
+        m_stats->setScaleX(0.37f);
+        m_stats->setScaleY(0.25f);
+        m_status->setScaleX(0.33f);
+        m_status->setScaleY(0.23f);
 
+        // Move all metadata upward. The lowest line now sits above the first
+        // row of slot buttons instead of being hidden behind them.
         m_mainLayer->addChildAtPosition(
-            m_profile, Anchor::Center, ccp(0.f, 68.f)
+            m_profile, Anchor::Center, ccp(0.f, 104.f)
         );
         m_mainLayer->addChildAtPosition(
-            m_hardest, Anchor::Center, ccp(0.f, 43.f)
+            m_hardest, Anchor::Center, ccp(0.f, 83.f)
         );
         m_mainLayer->addChildAtPosition(
-            m_stats, Anchor::Center, ccp(0.f, 23.f)
+            m_stats, Anchor::Center, ccp(0.f, 64.f)
         );
         m_mainLayer->addChildAtPosition(
-            m_status, Anchor::Center, ccp(0.f, 3.f)
+            m_status, Anchor::Center, ccp(0.f, 45.f)
         );
 
         // Fixed 2x2 grid: four profiles, no create/delete controls.
