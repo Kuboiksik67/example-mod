@@ -38,6 +38,7 @@ jobs:
         uses: geode-sdk/build-geode-mod@main
         with:
           sdk: given
+          configure-args: -DSKIP_BUILDING_CODEGEN=OFF
           bindings-ref: 7d973cfbc75d736f195285b97cba49f62fc7c981
           combine: true
           target: ${{ matrix.config.target }}
